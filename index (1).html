@@ -1,0 +1,474 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.4">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="en"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;Recurring Internships, REUs &amp; Challenges Hub&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- PapaParse for reading live Google Sheets CSV --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Alpine.js for reactive filtering and UI --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>body { font-family: 'Inter', sans-serif; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>[x-cloak] { display: none !important; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-slate-50 text-slate-900 min-h-screen" x-data="opportunityApp()" x-init="initData()"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Top Navigation Header --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex items-center gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="bg-indigo-500 text-white text-xs font-bold px-2.5 py-0.5 rounded uppercase tracking-wider"&gt;Student Portal&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="text-slate-400 text-xs" x-text="dataSourceLabel"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h1 class="text-xl sm:text-2xl font-bold tracking-tight mt-1"&gt;Recurring Internships, REUs &amp; Challenges&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="flex items-center gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">          </span>@click="showSavedOnly = !showSavedOnly"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>:class="showSavedOnly ? 'bg-amber-500 text-slate-950 font-semibold' : 'bg-slate-800 text-slate-200 hover:bg-slate-700'"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>class="px-4 py-2 rounded-lg text-sm transition flex items-center gap-2 border border-slate-700"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span&gt;★ My Shortlist&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="bg-slate-950/30 px-2 py-0.5 rounded-full text-xs" x-text="savedIds.length"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/button&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">          </span>@click="exportShortlistCSV()"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>x-show="savedIds.length &gt; 0"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>x-cloak</p>
+<p class="p1"><span class="Apple-converted-space">          </span>class="px-3 py-2 rounded-lg text-sm bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>Export CSV</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Main Content --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Search &amp; Filter Control Panel --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="grid grid-cols-1 md:grid-cols-12 gap-4"&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Search Input --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="md:col-span-5"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1"&gt;Search Programs&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;input<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>type="text"<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>x-model="searchQuery"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>placeholder="Search NASA, Caltech, data science, stipend..."<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>class="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Category Filter --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="md:col-span-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1"&gt;Type&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;select x-model="selectedCategory" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-indigo-500 outline-none"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="All"&gt;All Types&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="Research / REU"&gt;Research / REU&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="Challenge / Competition"&gt;Challenge / Competition&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="Industry / Gov Internship"&gt;Industry / Gov&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="Fellowship"&gt;Fellowship&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Class Standing Filter --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="md:col-span-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1"&gt;Eligible Year&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;select x-model="selectedYear" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-indigo-500 outline-none"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="All"&gt;All Class Standings&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="Freshman"&gt;Freshman&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="Sophomore"&gt;Sophomore&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="Junior"&gt;Junior&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="Senior"&gt;Senior&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="Grad"&gt;Graduate Student&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Status Filter --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="md:col-span-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1"&gt;Status&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;select x-model="selectedStatus" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-indigo-500 outline-none"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="All"&gt;All Statuses&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="Open Now"&gt;Open Now&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="Opening Soon"&gt;Opening Soon&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="Rolling"&gt;Rolling&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="Closed - Reopens Fall"&gt;Closed (Annual)&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;!-- Active Filter Summary &amp; Reset --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>Showing &lt;span class="font-bold text-slate-800" x-text="filteredPrograms.length"&gt;&lt;/span&gt; recurring opportunities</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span x-show="showSavedOnly" class="text-amber-600 font-semibold"&gt;(Filtered to your Shortlist)&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex items-center gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;label class="inline-flex items-center gap-1.5 cursor-pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="checkbox" x-model="intlEligibleOnly" class="rounded text-indigo-600 focus:ring-indigo-500"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span&gt;Open to International Students&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;button @click="resetFilters()" class="text-indigo-600 hover:text-indigo-800 font-medium"&gt;Reset Filters&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Loading Indicator --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div x-show="isLoading" class="text-center py-12 text-slate-500 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>Loading live opportunity database...</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Opportunity Cards Grid --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div x-show="!isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;template x-for="item in filteredPrograms" :key="item.id"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden"&gt;</p>
+<p class="p2"><span class="Apple-converted-space">          </span></p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="p-5"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Top Row: Category Badge &amp; Bookmark --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="flex items-start justify-between gap-2 mb-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;span<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>class="text-xs font-semibold px-2.5 py-1 rounded-md"</p>
+<p class="p1"><span class="Apple-converted-space">                </span>:class="{</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>'bg-blue-50 text-blue-700': item.category === 'Research / REU',</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>'bg-purple-50 text-purple-700': item.category === 'Challenge / Competition',</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>'bg-emerald-50 text-emerald-700': item.category === 'Industry / Gov Internship',</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>'bg-amber-50 text-amber-700': item.category === 'Fellowship'</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}"</p>
+<p class="p1"><span class="Apple-converted-space">                </span>x-text="item.category"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/span&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;button<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>@click="toggleSave(item.id)"<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>class="text-lg leading-none p-1 rounded hover:bg-slate-100 transition"</p>
+<p class="p1"><span class="Apple-converted-space">                </span>:title="isSaved(item.id) ? 'Remove from Shortlist' : 'Save to Shortlist'"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span x-text="isSaved(item.id) ? '★' : '☆'" :class="isSaved(item.id) ? 'text-amber-500' : 'text-slate-400'"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Title &amp; Host --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-lg font-bold text-slate-900 leading-snug" x-text="item.name"&gt;&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-sm font-medium text-indigo-600 mt-0.5" x-text="item.organization"&gt;&lt;/p&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Description --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-sm text-slate-600 mt-3 line-clamp-3" x-text="item.description"&gt;&lt;/p&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Key Metadata Grid --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="mt-4 pt-4 border-t border-slate-100 space-y-2 text-xs"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="flex justify-between gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="text-slate-500 shrink-0"&gt;Typical Deadline:&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="font-semibold text-slate-800 text-right" x-text="item.typicalDeadline"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="flex justify-between gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="text-slate-500 shrink-0"&gt;Compensation:&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="font-semibold text-emerald-700 text-right" x-text="item.funding"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="flex justify-between gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="text-slate-500 shrink-0"&gt;Eligible Years:&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="font-medium text-slate-700 text-right" x-text="item.eligibleYears.join(', ')"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="flex justify-between gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="text-slate-500 shrink-0"&gt;Citizenship:&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="font-medium text-slate-700 text-right" x-text="item.citizenship"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;!-- Card Footer --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>class="inline-flex items-center gap-1.5 text-xs font-semibold"</p>
+<p class="p1"><span class="Apple-converted-space">              </span>:class="{</p>
+<p class="p1"><span class="Apple-converted-space">                </span>'text-emerald-600': item.status === 'Open Now',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>'text-amber-600': item.status === 'Opening Soon',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>'text-blue-600': item.status === 'Rolling',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>'text-slate-500': item.status.includes('Closed')</p>
+<p class="p1"><span class="Apple-converted-space">              </span>}"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="w-2 h-2 rounded-full"</p>
+<p class="p1"><span class="Apple-converted-space">                </span>:class="{</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>'bg-emerald-500': item.status === 'Open Now',</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>'bg-amber-500': item.status === 'Opening Soon',</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>'bg-blue-500': item.status === 'Rolling',</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>'bg-slate-400': item.status.includes('Closed')</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;span x-text="item.status"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/span&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;a<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>:href="item.url"<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>target="_blank"<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>rel="noopener noreferrer"</p>
+<p class="p1"><span class="Apple-converted-space">              </span>class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>View Program →</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/a&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/template&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Empty State --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div x-show="!isLoading &amp;&amp; filteredPrograms.length === 0" x-cloak class="text-center py-16 bg-white rounded-xl border border-slate-200 mt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;p class="text-slate-500 text-base font-medium"&gt;No programs match your current filter criteria.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button @click="resetFilters()" class="mt-3 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-500"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>Clear All Filters</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/main&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// =========================================================================</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// CONFIGURATION: Paste your Google Sheet "Publish to Web (CSV)" link below</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Leave blank ('') to use the built-in fallback dataset for local testing.</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// =========================================================================</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQqq9FMuVqGE2_ABJWiirM7GRAlJfXzJuNWULMIxdD7rnlp8HZl27ZHv1SEgfs46jdg1q1iC2QVSij5/pub?gid=0&amp;single=true&amp;output=csv';<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function opportunityApp() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>isLoading: true,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>dataSourceLabel: '2026–2027 Cycle',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>searchQuery: '',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>selectedCategory: 'All',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>selectedYear: 'All',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>selectedStatus: 'All',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>intlEligibleOnly: false,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>showSavedOnly: false,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>savedIds: JSON.parse(localStorage.getItem('savedOpportunities') || '[]'),</p>
+<p class="p1"><span class="Apple-converted-space">        </span>programs: [],</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>initData() {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (SHEET_CSV_URL &amp;&amp; SHEET_CSV_URL.trim() !== '') {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>this.dataSourceLabel = 'Live Synced with Google Sheets';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>Papa.parse(SHEET_CSV_URL, {</p>
+<p class="p1"><span class="Apple-converted-space">              </span>download: true,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>header: true,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>skipEmptyLines: true,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>complete: (results) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>this.programs = results.data.map((row, index) =&gt; ({</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>id: Number(row.id) || index + 1,</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>name: row.name || 'Untitled Program',</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>organization: row.organization || '',</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>category: row.category || 'Research / REU',</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>description: row.description || '',</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>typicalDeadline: row.typicalDeadline || 'See Website',</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>funding: row.funding || 'Varies',</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>eligibleYears: row.eligibleYears<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>? row.eligibleYears.split(',').map(y =&gt; y.trim())<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>: [],</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>citizenship: row.citizenship || 'See Website',</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>intlEligible: String(row.intlEligible).toUpperCase() === 'TRUE',</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>status: row.status || 'Open Now',</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>url: row.url || '#'</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>this.isLoading = false;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>},</p>
+<p class="p1"><span class="Apple-converted-space">              </span>error: (err) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>console.error('Failed to load Google Sheet CSV:', err);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>this.loadFallbackData();</p>
+<p class="p1"><span class="Apple-converted-space">              </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">          </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>this.loadFallbackData();</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>},</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>loadFallbackData() {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>this.programs = [</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{</p>
+<p class="p1"><span class="Apple-converted-space">              </span>id: 1,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>name: "Caltech WAVE Fellows Program",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>organization: "California Institute of Technology",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>category: "Research / REU",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>description: "10-week summer undergraduate research program fostering diversity by increasing participation of underrepresented students in science and engineering Ph.D. programs.",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>typicalDeadline: "Early January (Jan 10)",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>funding: "$7,740 stipend + housing/travel",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>eligibleYears: ["Sophomore", "Junior", "Senior"],</p>
+<p class="p1"><span class="Apple-converted-space">              </span>citizenship: "US Citizen / Perm. Resident",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>intlEligible: false,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>status: "Open Now",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>url: "https://sfp.caltech.edu/undergraduate-research/programs/wavefellows"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>},</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{</p>
+<p class="p1"><span class="Apple-converted-space">              </span>id: 2,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>name: "NASA University Student Launch Initiative",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>organization: "NASA",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>category: "Challenge / Competition",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>description: "Year-long competitive design challenge where student teams design, build, test, and fly a high-powered amateur rocket carrying a scientific or engineering payload.",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>typicalDeadline: "Mid-September (Proposals)",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>funding: "Team grants &amp; travel support",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>eligibleYears: ["Freshman", "Sophomore", "Junior", "Senior", "Grad"],</p>
+<p class="p1"><span class="Apple-converted-space">              </span>citizenship: "Open to US Institutions",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>intlEligible: true,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>status: "Closed - Reopens Fall",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>url: "https://www.nasa.gov/learning-resources/nasa-student-launch/"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>},</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{</p>
+<p class="p1"><span class="Apple-converted-space">              </span>id: 3,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>name: "DOE Science Undergraduate Laboratory Internships (SULI)",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>organization: "U.S. Department of Energy",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>category: "Industry / Gov Internship",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>description: "Paid research internships at 17 participating DOE national laboratories across the country during Summer, Fall, or Spring terms.",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>typicalDeadline: "Early January (Summer Term)",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>funding: "$650/week + housing allowance",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>eligibleYears: ["Freshman", "Sophomore", "Junior", "Senior"],</p>
+<p class="p1"><span class="Apple-converted-space">              </span>citizenship: "US Citizen / Perm. Resident",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>intlEligible: false,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>status: "Open Now",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>url: "https://science.osti.gov/wdts/suli"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>},</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{</p>
+<p class="p1"><span class="Apple-converted-space">              </span>id: 4,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>name: "NSF Research Experiences for Undergraduates (REU)",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>organization: "National Science Foundation",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>category: "Research / REU",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>description: "Hundreds of funded summer research sites across universities nationwide in computing, engineering, physics, biology, and data science.",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>typicalDeadline: "Jan 15 – Feb 15 (Varies by site)",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>funding: "$6,000–$7,000 + housing",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>eligibleYears: ["Freshman", "Sophomore", "Junior"],</p>
+<p class="p1"><span class="Apple-converted-space">              </span>citizenship: "US Citizen / Perm. Resident",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>intlEligible: false,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>status: "Opening Soon",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>url: "https://www.nsf.gov/crssprgm/reu/"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>},</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{</p>
+<p class="p1"><span class="Apple-converted-space">              </span>id: 5,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>name: "NASA RASC-AL Design Competition",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>organization: "NASA / National Institute of Aerospace",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>category: "Challenge / Competition",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>description: "University-level engineering design competition developing innovative concepts for human and robotic space exploration architectures.",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>typicalDeadline: "Early March (Proposals)",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>funding: "Travel stipends to Cocoa Beach",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>eligibleYears: ["Junior", "Senior", "Grad"],</p>
+<p class="p1"><span class="Apple-converted-space">              </span>citizenship: "Open (Check team rules)",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>intlEligible: true,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>status: "Open Now",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>url: "https://rascal.nianet.org/"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>},</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{</p>
+<p class="p1"><span class="Apple-converted-space">              </span>id: 6,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>name: "NIH Summer Internship Program (SIP)",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>organization: "National Institutes of Health",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>category: "Research / REU",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>description: "Full-time biomedical research alongside leading scientists at NIH campuses in Bethesda, MD and across the US.",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>typicalDeadline: "Mid-February (Rolling review)",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>funding: "Monthly stipend by education level",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>eligibleYears: ["Freshman", "Sophomore", "Junior", "Senior", "Grad"],</p>
+<p class="p1"><span class="Apple-converted-space">              </span>citizenship: "US Citizen / Perm. Resident",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>intlEligible: false,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>status: "Open Now",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>url: "https://www.training.nih.gov/research-training/pb/sip/"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>},</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{</p>
+<p class="p1"><span class="Apple-converted-space">              </span>id: 13,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>name: "Summer Institute in Biostatistics and Data Science (SIBDS)",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>organization: "NIH / NHLBI",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>category: "Research / REU",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>description: "6-to-7-week training program introducing undergraduates to biostatistics, statistical genetics, and data science methods applied to clinical research.",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>typicalDeadline: "Mid-March (Rolling)",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>funding: "Tuition covered + housing &amp; stipend",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>eligibleYears: ["Sophomore", "Junior", "Senior"],</p>
+<p class="p1"><span class="Apple-converted-space">              </span>citizenship: "US Citizen / Perm. Resident",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>intlEligible: false,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>status: "Opening Soon",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>url: "https://www.nhlbi.nih.gov/grants-and-training/summer-institute-biostatistics"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>},</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{</p>
+<p class="p1"><span class="Apple-converted-space">              </span>id: 16,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>name: "Santa Fe Institute Undergraduate Complexity Research (UCR)",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>organization: "Santa Fe Institute",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>category: "Research / REU",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>description: "10-week residential program exploring complex systems, interdisciplinary modeling, network science, and computational social science.",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>typicalDeadline: "Mid-January (Jan 15)",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>funding: "$6,500 stipend + housing &amp; travel",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>eligibleYears: ["Sophomore", "Junior", "Senior"],</p>
+<p class="p1"><span class="Apple-converted-space">              </span>citizenship: "Open to International Students",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>intlEligible: true,</p>
+<p class="p1"><span class="Apple-converted-space">              </span>status: "Open Now",</p>
+<p class="p1"><span class="Apple-converted-space">              </span>url: "https://www.santafe.edu/engage/learn/programs/undergraduate-complexity-research"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>];</p>
+<p class="p1"><span class="Apple-converted-space">          </span>this.isLoading = false;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>},</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>get filteredPrograms() {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>return this.programs.filter(item =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const q = this.searchQuery.toLowerCase();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const matchesSearch = q === '' ||<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>item.name.toLowerCase().includes(q) ||</p>
+<p class="p1"><span class="Apple-converted-space">              </span>item.organization.toLowerCase().includes(q) ||</p>
+<p class="p1"><span class="Apple-converted-space">              </span>item.description.toLowerCase().includes(q);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const matchesCategory = this.selectedCategory === 'All' || item.category === this.selectedCategory;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const matchesYear = this.selectedYear === 'All' || item.eligibleYears.includes(this.selectedYear);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const matchesStatus = this.selectedStatus === 'All' || item.status === this.selectedStatus;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const matchesIntl = !this.intlEligibleOnly || item.intlEligible;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const matchesSaved = !this.showSavedOnly || this.savedIds.includes(item.id);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>return matchesSearch &amp;&amp; matchesCategory &amp;&amp; matchesYear &amp;&amp; matchesStatus &amp;&amp; matchesIntl &amp;&amp; matchesSaved;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>},</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>toggleSave(id) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (this.savedIds.includes(id)) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>this.savedIds = this.savedIds.filter(i =&gt; i !== id);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>this.savedIds.push(id);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>localStorage.setItem('savedOpportunities', JSON.stringify(this.savedIds));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>},</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>isSaved(id) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>return this.savedIds.includes(id);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>},</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>resetFilters() {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>this.searchQuery = '';</p>
+<p class="p1"><span class="Apple-converted-space">          </span>this.selectedCategory = 'All';</p>
+<p class="p1"><span class="Apple-converted-space">          </span>this.selectedYear = 'All';</p>
+<p class="p1"><span class="Apple-converted-space">          </span>this.selectedStatus = 'All';</p>
+<p class="p1"><span class="Apple-converted-space">          </span>this.intlEligibleOnly = false;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>this.showSavedOnly = false;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>},</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>exportShortlistCSV() {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const savedItems = this.programs.filter(p =&gt; this.savedIds.includes(p.id));</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const headers = ['Program Name', 'Organization', 'Category', 'Typical Deadline', 'Funding', 'URL'];</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const rows = savedItems.map(p =&gt; [</p>
+<p class="p1"><span class="Apple-converted-space">            </span>`"${p.name}"`, `"${p.organization}"`, `"${p.category}"`, `"${p.typicalDeadline}"`, `"${p.funding}"`, `"${p.url}"`</p>
+<p class="p1"><span class="Apple-converted-space">          </span>]);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e =&gt; e.join(','))].join('\n');</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const encodedUri = encodeURI(csvContent);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const link = document.createElement("a");</p>
+<p class="p1"><span class="Apple-converted-space">          </span>link.setAttribute("href", encodedUri);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>link.setAttribute("download", "my_internship_shortlist.csv");</p>
+<p class="p1"><span class="Apple-converted-space">          </span>document.body.appendChild(link);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>link.click();</p>
+<p class="p1"><span class="Apple-converted-space">          </span>document.body.removeChild(link);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
